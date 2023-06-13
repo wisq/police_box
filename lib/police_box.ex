@@ -1,18 +1,9 @@
 defmodule PoliceBox do
-  @moduledoc """
-  Documentation for `PoliceBox`.
-  """
+  use Application
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> PoliceBox.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  @impl true
+  def start(_type, _args) do
+    children = [PoliceBox.Server]
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end
