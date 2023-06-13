@@ -85,6 +85,8 @@ defmodule PoliceBox.Lights do
     PiGlow.map_leds(fn _ -> 0 end)
   end
 
+  defp update_leds_percent(nil), do: :noop
+
   defp update_leds_percent(percent) do
     leds = percent_to_leds(percent)
 
@@ -95,8 +97,6 @@ defmodule PoliceBox.Lights do
 
   @leds PiGlow.LED.leds()
         |> Enum.sort_by(fn led -> {0 - led.ring, led.arm} end)
-
-  defp percent_to_leds(nil), do: percent_to_leds(0.0)
 
   defp percent_to_leds(float) when float >= 0.0 and float <= 1.0 do
     count = round(float / 1.0 * 17 + 1)

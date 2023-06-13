@@ -17,25 +17,55 @@ defmodule PoliceBox.Server do
     {:ok, socket}
   end
 
+  @phase_regex ~r/^\s*BackupPhase = ([A-Za-z]+);$/m
   @running_regex ~r/^\s*Running = ([01]);$/m
   @percent_regex ~r/^\s*Percent = \"([0-9.-]+)\";$/m
 
   @impl true
   def handle_info({:udp, socket, ip, port, data}, socket) do
-    with {:ok, running} <- match_running(data),
-         {:ok, percent} <- match_percent(data) do
-      Logger.info(
-        @log_prefix <>
-          "From #{:inet.ntoa(ip)}:#{port}: " <>
-          inspect(running: running, percent: percent)
-      )
+    case parse_packet(data) do
+      {:ok, running, percent} ->
+        Logger.info(
+          @log_prefix <>
+            "From #{:inet.ntoa(ip)}:#{port}: " <>
+            inspect(running: running, percent: percent)
+        )
 
-      PoliceBox.Lights.update(running, percent)
-      {:noreply, socket}
-    else
+        PoliceBox.Lights.update(running, percent)
+        {:noreply, socket}
+
       :error ->
         Logger.warn(@log_prefix <> "Received bogus packet from #{:inet.ntoa(ip)}:#{port}.")
         {:noreply, socket}
+    end
+  end
+
+  defp parse_packet(data) do
+    with {:ok, true} <- match_running(data),
+         {:ok, percent} <- match_percent(data),
+         {:ok, phase} <- match_phase(data) do
+      percent =
+        case phase do
+          "ThinningPostBackup" -> nil
+          "MountingBackupVol" -> 0.0
+          "PreparingSourceVolumes" -> 0.0
+          "FindingChanges" -> 0.0
+          "Copying" -> percent
+          "Finishing" -> 1.0
+          _ -> nil
+        end
+
+      {:ok, true, percent}
+    else
+      {:ok, false} -> {:ok, false, nil}
+      :error -> :error
+    end
+  end
+
+  defp match_phase(data) do
+    case Regex.run(@phase_regex, data, captures: :all_but_first) do
+      [_, phase] -> {:ok, phase}
+      nil -> :error
     end
   end
 
