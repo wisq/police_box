@@ -39,8 +39,8 @@ defmodule PoliceBox.Lights do
   @impl true
   def handle_info({:flash, ref}, %State{flash_ref: ref, flash_on: on} = state) do
     case on do
-      true -> update_leds_percent(state.percent)
-      false -> turn_off_leds()
+      false -> update_leds_percent(state.percent)
+      true -> turn_off_leds()
     end
 
     {:noreply, %State{state | flash_on: !on} |> schedule_flash()}
@@ -55,7 +55,7 @@ defmodule PoliceBox.Lights do
   defp handle_state_change(%State{running: false}, %State{running: true} = new) do
     pulse_leds(2)
     update_leds_percent(new.percent)
-    new |> schedule_flash()
+    %State{new | flash_on: true} |> schedule_flash()
   end
 
   defp handle_state_change(%State{running: true}, %State{running: false} = new) do
@@ -65,7 +65,7 @@ defmodule PoliceBox.Lights do
   end
 
   defp handle_state_change(%State{running: true}, %State{running: true} = new) do
-    update_leds_percent(new.percent)
+    if new.flash_on, do: update_leds_percent(new.percent)
     new
   end
 
