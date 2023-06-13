@@ -3,6 +3,7 @@ defmodule PoliceBox.Lights do
   require Logger
 
   @log_prefix "[#{inspect(__MODULE__)}] "
+  @flash_delay 1000
 
   def start_link(opts) do
     opts = Keyword.put_new(opts, :name, __MODULE__)
@@ -16,7 +17,9 @@ defmodule PoliceBox.Lights do
   defmodule State do
     defstruct(
       running: false,
-      percent: nil
+      percent: nil,
+      flash_ref: nil,
+      flash_on: true
     )
   end
 
@@ -29,19 +32,44 @@ defmodule PoliceBox.Lights do
   @impl true
   def handle_cast({:update, running, percent}, old_state) do
     new_state = %State{old_state | running: running, percent: percent}
-    handle_state_change(old_state, new_state)
+    new_state = handle_state_change(old_state, new_state)
     {:noreply, new_state}
   end
 
-  defp handle_state_change(old, %State{running: true} = new) do
-    if !old.running, do: pulse_leds(2)
-    update_leds_percent(new.percent)
+  @impl true
+  def handle_info({:flash, ref}, %State{flash_ref: ref, flash_on: on} = state) do
+    case on do
+      true -> update_leds_percent(state.percent)
+      false -> turn_off_leds()
+    end
+
+    {:noreply, %State{state | flash_on: !on} |> schedule_flash()}
   end
 
-  defp handle_state_change(old, %State{running: false}) do
-    if old.running, do: pulse_leds(1)
-    turn_off_leds()
+  @impl true
+  def handle_info({:flash, _}, state) do
+    Logger.debug("Ignoring expired :flash message")
+    {:noreply, state}
   end
+
+  defp handle_state_change(%State{running: false}, %State{running: true} = new) do
+    pulse_leds(2)
+    update_leds_percent(new.percent)
+    new |> schedule_flash()
+  end
+
+  defp handle_state_change(%State{running: true}, %State{running: false} = new) do
+    pulse_leds(1)
+    turn_off_leds()
+    %State{new | flash_ref: nil}
+  end
+
+  defp handle_state_change(%State{running: true}, %State{running: true} = new) do
+    update_leds_percent(new.percent)
+    new
+  end
+
+  defp handle_state_change(%State{running: false}, %State{running: false} = new), do: new
 
   @pulse [0..255, 255..0]
          |> Enum.flat_map(& &1)
@@ -68,8 +96,14 @@ defmodule PoliceBox.Lights do
   @leds PiGlow.LED.leds()
         |> Enum.sort_by(fn led -> {0 - led.ring, led.arm} end)
 
-  def percent_to_leds(float) when float >= 0.0 and float <= 1.0 do
+  defp percent_to_leds(float) when float >= 0.0 and float <= 1.0 do
     count = round(float / 1.0 * 17 + 1)
     @leds |> Enum.take(count)
+  end
+
+  defp schedule_flash(%State{running: true} = state) do
+    ref = make_ref()
+    Process.send_after(self(), {:flash, ref}, @flash_delay)
+    %State{state | flash_ref: ref}
   end
 end
