@@ -49,9 +49,9 @@ defmodule PoliceBox.Server do
 
   defp match_percent(data) do
     case Regex.run(@percent_regex, data, captures: :all_but_first) do
-      [_, "-1"] -> {:ok, nil}
+      [_, "-1"] -> {:ok, 1.0}
       [_, float] -> parse_float(float)
-      nil -> nil
+      nil -> {:ok, nil}
     end
   end
 
