@@ -1,0 +1,8 @@
+#!/bin/sh
+
+while true; do
+	if tmutil status | tee /dev/stderr | grep -q 'Running = 0'; then
+		exit 0
+	fi
+	sleep 1
+done 2>&1 | socat STDIO UDP-SENDTO:192.168.2.10:1963
