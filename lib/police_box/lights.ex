@@ -4,8 +4,8 @@ defmodule PoliceBox.Lights do
 
   @log_prefix "[#{inspect(__MODULE__)}] "
 
-  # Flash for one second on, one second off.
-  @flash_delay 1000
+  # Flash for one second on, one second off (by default).
+  @flash_delay Application.compile_env(:police_box, :flash_delay, 1000)
   # Minimum brightness is enough.
   @brightness 1
 

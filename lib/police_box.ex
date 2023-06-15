@@ -3,11 +3,13 @@ defmodule PoliceBox do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      PoliceBox.Server,
-      PoliceBox.Lights
-    ]
+    Supervisor.start_link(app_children(), strategy: :one_for_one)
+  end
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+  defp app_children do
+    case Application.get_env(:police_box, :start, true) do
+      true -> [PoliceBox.Server, PoliceBox.Lights]
+      false -> []
+    end
   end
 end
