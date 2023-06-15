@@ -1,5 +1,9 @@
 %{
+  "briefly": {:hex, :briefly, "0.4.1", "c90c0511e64bde1fe8da7e244e14acf5bc78c3f6d033db778205e1fa2feafa5c", [:mix], [], "hexpm", "fc0cafcd19c4ed0d0906ae5cf627cc6ce76b8652a160c6bde0ab9d77304ebb0a"},
   "circuits_i2c": {:hex, :circuits_i2c, "1.2.2", "1666bf1763fe60ab835462d13f04ca75b0de000a7d5b89e24d8f35a06ef6d097", [:make, :mix], [{:elixir_make, "~> 0.6", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "a7fffcb1bf128e4112b0734796f26b0b4f2359e4c60e86d9718c31834e10a343"},
   "elixir_make": {:hex, :elixir_make, "0.7.7", "7128c60c2476019ed978210c245badf08b03dbec4f24d05790ef791da11aa17c", [:mix], [{:castore, "~> 0.1 or ~> 1.0", [hex: :castore, repo: "hexpm", optional: true]}], "hexpm", "5bc19fff950fad52bbe5f211b12db9ec82c6b34a9647da0c2224b8b8464c7e6c"},
+  "ex_git_test": {:hex, :ex_git_test, "0.1.2", "414bea125357a472d00c1fa5789fc2ed7b31ef0a1ab9c57ff91ded0f5e55b45d", [:mix], [{:briefly, "~> 0.4.0", [hex: :briefly, repo: "hexpm", optional: false]}], "hexpm", "bcef00597db796ba15c82f4086a2c66bc4462df22a6ea49531fc957af8e61d76"},
+  "file_system": {:hex, :file_system, "0.2.10", "fb082005a9cd1711c05b5248710f8826b02d7d1784e7c3451f9c1231d4fc162d", [:mix], [], "hexpm", "41195edbfb562a593726eda3b3e8b103a309b733ad25f3d642ba49696bf715dc"},
+  "mix_test_watch": {:hex, :mix_test_watch, "1.1.0", "330bb91c8ed271fe408c42d07e0773340a7938d8a0d281d57a14243eae9dc8c3", [:mix], [{:file_system, "~> 0.2.1 or ~> 0.3", [hex: :file_system, repo: "hexpm", optional: false]}], "hexpm", "52b6b1c476cbb70fd899ca5394506482f12e5f6b0d6acff9df95c7f1e0812ec3"},
   "pi_glow": {:hex, :pi_glow, "0.1.0", "ac4b8f131762dd04a9329d799e5a0c7d5d75f0c590d48b96d4af421aef3c2335", [:mix], [{:circuits_i2c, "~> 1.0", [hex: :circuits_i2c, repo: "hexpm", optional: false]}], "hexpm", "fb3a22c4be36648f8de9a92ba81603e720e5669c40305b5381bd97fe49f328e2"},
 }
