@@ -1,5 +1,5 @@
 defmodule PoliceBox.LightsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias PoliceBox.Lights
 
